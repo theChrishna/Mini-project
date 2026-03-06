@@ -1,0 +1,94 @@
+﻿.\venv\Scripts\python.e
+xe : Traceback (most 
+recent call last):
+At line:1 char:8
++ $err = .\venv\Scripts
+\python.exe 
+.\train_model.py 2>&1; 
+$err | Out-Fi ...
++        ~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (Traceback (mo   
+ st recent call las    
+t)::String) [], Re    
+moteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+  File "D:\Programs\My 
+Codes\Mini-Project\trai
+n_model.py", line 2, 
+in <module>
+    from 
+sklearn.ensemble 
+import 
+RandomForestClassifier
+  File "D:\Programs\My 
+Codes\Mini-Project\venv
+\Lib\site-packages\skle
+arn\__init__.py", line 
+70, in <module>
+    from sklearn.base 
+import clone  # noqa: 
+E402
+    ^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^
+  File "D:\Programs\My 
+Codes\Mini-Project\venv
+\Lib\site-packages\skle
+arn\base.py", line 19, 
+in <module>
+    from sklearn.utils.
+_metadata_requests 
+import 
+_MetadataRequester, 
+_routing_enabled
+  File "D:\Programs\My 
+Codes\Mini-Project\venv
+\Lib\site-packages\skle
+arn\utils\__init__.py",
+ line 9, in <module>
+    from sklearn.utils.
+_chunking import 
+gen_batches, 
+gen_even_slices
+  File "D:\Programs\My 
+Codes\Mini-Project\venv
+\Lib\site-packages\skle
+arn\utils\_chunking.py"
+, line 11, in <module>
+    from sklearn.utils.
+_param_validation 
+import Interval, 
+validate_params
+  File "D:\Programs\My 
+Codes\Mini-Project\venv
+\Lib\site-packages\skle
+arn\utils\_param_valida
+tion.py", line 17, in 
+<module>
+    from sklearn.utils.
+validation import _is_a
+rraylike_not_scalar
+  File "D:\Programs\My 
+Codes\Mini-Project\venv
+\Lib\site-packages\skle
+arn\utils\validation.py
+", line 14, in <module>
+    import joblib
+  File "D:\Programs\My 
+Codes\Mini-Project\venv
+\Lib\site-packages\jobl
+ib\__init__.py", line 
+114, in <module>
+    from 
+._cloudpickle_wrapper 
+import wrap_non_picklab
+le_objects
+SyntaxError: source 
+code string cannot 
+contain null bytes
