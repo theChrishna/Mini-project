@@ -38,12 +38,12 @@ python train_model.py
 ```
 This script will output the accuracy of your model on the test data split and save the compiled parameters into `model.p`.
 
-### 3. Run the Real-Time Translator
-Start the live prediction pipeline:
+### 3. Run the Real-Time Web Translator
+Start the live prediction Flask pipeline:
 ```bash
-python main.py
+python app.py
 ```
-The webcam will open. Start making the gestures you've trained the model on, and the program will recognize and display them on the screen in real-time. Press **`q`** to exit the application.
+After the server boots, visit `http://localhost:5000` in your web browser. The webcam will open inside a beautiful UI and the program will begin recognizing and displaying your gestures in real-time.
 
 ## How It Works
 

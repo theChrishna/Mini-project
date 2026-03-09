@@ -1,0 +1,69 @@
+import cv2
+import pickle
+import numpy as np
+from flask import Flask, render_template, Response
+from hand_tracking import HandDetector
+
+app = Flask(__name__)
+
+# 1. Load the trained model
+with open('model.p', 'rb') as f:
+    model = pickle.load(f)
+
+detector = HandDetector(maxHands=1)
+
+def generate_frames():
+    cap = cv2.VideoCapture(0)
+    frame_timestamp_ms = 0
+    
+    while True:
+        success, img = cap.read()
+        if not success:
+            break
+            
+        fps_prop = cap.get(cv2.CAP_PROP_FPS)
+        frame_timestamp_ms += int(1000 / fps_prop) if fps_prop > 0 else 30
+        
+        # Mirror the image for natural movement
+        img = cv2.flip(img, 1)
+        
+        # Process hands
+        img = detector.findHands(img, frame_timestamp_ms, draw=True)
+        lmList = detector.findPosition(img, draw=False)
+        
+        if lmList:
+            h, w, _ = img.shape
+            # Normalize coordinates
+            x_coords = [lm[1]/w for lm in lmList]
+            y_coords = [lm[2]/h for lm in lmList]
+            
+            features = np.array(x_coords + y_coords).reshape(1, -1)
+            
+            # Predict the gesture
+            prediction = model.predict(features)
+            letter = str(prediction[0])
+            
+            # Draw the UI on the frame
+            cv2.rectangle(img, (20, 20), (150, 120), (255, 99, 71), cv2.FILLED)  # Tomato color
+            cv2.putText(img, letter, (45, 100), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 255, 255), 5)
+            
+        # Format the image into JPEG for web streaming
+        ret, buffer = cv2.imencode('.jpg', img)
+        frame = buffer.tobytes()
+        
+        # Yield the multipart byte stream
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+    cap.release()
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

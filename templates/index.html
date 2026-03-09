@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real-time web translator for sign language using machine learning.">
+    <title>Sign Language Translator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Load Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <main class="container">
+        <header class="app-header">
+            <h1 class="glow-text">Sign Language Translator</h1>
+            <p class="subtitle">Real-time computer vision powered by Random Forest</p>
+        </header>
+
+        <section class="video-section">
+            <div class="video-container glass-panel">
+                <div class="stream-wrapper">
+                    <img id="videoStream" src="{{ url_for('video_feed') }}" alt="Live Sign Language Translation Stream">
+                    <div class="scanning-line"></div>
+                </div>
+            </div>
+            
+            <div class="controls glass-panel">
+                <div class="status-indicator">
+                    <span class="pulse-dot"></span>
+                    <span class="status-text">System Active</span>
+                </div>
+                <div class="info-card">
+                    <h3>Instructions</h3>
+                    <p>Ensure your hand is clearly visible in the camera frame. The AI will translate your trained gestures in real-time.</p>
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <p>Powered by MediaPipe & Scikit-Learn</p>
+        </footer>
+    </main>
+</body>
+</html>

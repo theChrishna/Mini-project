@@ -8,7 +8,7 @@ def main():
     detector = HandDetector(maxHands=1)
     
     # --- DATA COLLECTION SETTINGS ---
-    label = "C"  # Change this to "B", "C", etc. before running
+    label = "D"  # Change this to "B", "C", etc. before running
     file_name = "hand_data.csv"
     # Create the file with a header if it doesn't exist
     if not os.path.exists(file_name):
