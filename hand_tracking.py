@@ -108,7 +108,7 @@ def main():
             
             lmList = detector.findPosition(image, draw=False)
             if len(lmList) > 4:
-                print(f"Thumb tip: {lmList[4]}")
+                print(f"Detected hands on screen. Thumb tip: {lmList[4]}")
 
             cTime = time.time()
             fps = 1 / (cTime - pTime) if (cTime - pTime) > 0 else 0

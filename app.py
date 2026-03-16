@@ -79,4 +79,5 @@ def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == '__main__':
+    print("Starting Flask server on port 5000...")
     app.run(debug=True, port=5000)
