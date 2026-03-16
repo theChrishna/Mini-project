@@ -4,10 +4,10 @@ A real-time hand gesture recognition and sign language translation system. This 
 
 ## Project Structure
 
-- **`hand_tracking.py`**: A helper module that wraps around the MediaPipe Tasks API (`hand_landmarker.task`) for accurate hand tracking. It extracts 21 hand landmarks and visualizes them on the frame.
+- **`hand_tracking.py`**: A helper module that wraps around the MediaPipe Tasks API (`hand_landmarker.task`) for accurate hand tracking. It extracts 21 hand landmarks and visualizes them on the frame. *Recently refactored for improved error handling and clean, comment-free architecture.*
 - **`data_collection.py`**: A script used to build your custom gesture dataset. It captures webcam frames, normalizes the 21 `(x, y)` hand landmarks, and saves them to a CSV file (`hand_data.csv`).
-- **`train_model.py`**: Reads your collected data, splits it into training and testing sets, and trains a Random Forest Classifier. The trained model is saved as a Python pickle file (`model.p`).
-- **`main.py`**: The real-time translation application. It loads your trained model, processes live webcam video to extract normalized hand landmarks, and predicts the specific gesture/sign, rendering the result directly on the screen.
+- **`check_model.py` / `train_model.py`**: Reads your collected data, splits it into training and testing sets (using stratification), and trains a Random Forest Classifier. The trained model is saved as a Python pickle file (`model.p`).
+- **`main.py`**: The real-time translation application. It loads your trained model, processes live webcam video to extract normalized hand landmarks, and predicts the specific gesture/sign, rendering the result directly on the screen along with a live FPS counter.
 
 ## Prerequisites
 
