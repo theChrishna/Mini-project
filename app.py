@@ -4,7 +4,7 @@ import numpy as np
 from flask import Flask, render_template, Response
 from hand_tracking import HandDetector
 
-app = Flask(__name__)
+app = Flask(__name__)  # Initialize the Flask application
 
 # 1. Load the trained model
 with open('model.p', 'rb') as f:
@@ -14,48 +14,61 @@ detector = HandDetector(maxHands=1)
 
 def generate_frames():
     cap = cv2.VideoCapture(0)
+    
+    # Check if the webcam is opened correctly
+    if not cap.isOpened():
+        print("Error: Could not open video device.")
+        return
+
     frame_timestamp_ms = 0
     
-    while True:
-        success, img = cap.read()
-        if not success:
-            break
+    try:
+        while True:
+            success, img = cap.read()
+            if not success:
+                print("Error: Failed to read frame from camera.")
+                break
+                
+            fps_prop = cap.get(cv2.CAP_PROP_FPS)
+            frame_timestamp_ms += int(1000 / fps_prop) if fps_prop > 0 else 30
             
-        fps_prop = cap.get(cv2.CAP_PROP_FPS)
-        frame_timestamp_ms += int(1000 / fps_prop) if fps_prop > 0 else 30
-        
-        # Mirror the image for natural movement
-        img = cv2.flip(img, 1)
-        
-        # Process hands
-        img = detector.findHands(img, frame_timestamp_ms, draw=True)
-        lmList = detector.findPosition(img, draw=False)
-        
-        if lmList:
-            h, w, _ = img.shape
-            # Normalize coordinates
-            x_coords = [lm[1]/w for lm in lmList]
-            y_coords = [lm[2]/h for lm in lmList]
+            # Mirror the image for natural movement
+            img = cv2.flip(img, 1)
             
-            features = np.array(x_coords + y_coords).reshape(1, -1)
+            # Process hands
+            img = detector.findHands(img, frame_timestamp_ms, draw=True)
+            lmList = detector.findPosition(img, draw=False)
             
-            # Predict the gesture
-            prediction = model.predict(features)
-            letter = str(prediction[0])
+            if lmList:
+                h, w, _ = img.shape
+                # Normalize coordinates
+                x_coords = [lm[1]/w for lm in lmList]
+                y_coords = [lm[2]/h for lm in lmList]
+                
+                features = np.array(x_coords + y_coords).reshape(1, -1)
+                
+                # Predict the gesture
+                prediction = model.predict(features)
+                letter = str(prediction[0])
+                
+                # Draw the UI on the frame
+                cv2.rectangle(img, (20, 20), (150, 120), (255, 99, 71), cv2.FILLED)  # Tomato color
+                cv2.putText(img, letter, (45, 100), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 255, 255), 5)
+                
+            # Format the image into JPEG for web streaming
+            ret, buffer = cv2.imencode('.jpg', img)
+            if not ret:
+                continue
+                
+            frame = buffer.tobytes()
             
-            # Draw the UI on the frame
-            cv2.rectangle(img, (20, 20), (150, 120), (255, 99, 71), cv2.FILLED)  # Tomato color
-            cv2.putText(img, letter, (45, 100), cv2.FONT_HERSHEY_SIMPLEX, 3, (255, 255, 255), 5)
-            
-        # Format the image into JPEG for web streaming
-        ret, buffer = cv2.imencode('.jpg', img)
-        frame = buffer.tobytes()
-        
-        # Yield the multipart byte stream
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            # Yield the multipart byte stream
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-    cap.release()
+    finally:
+        # Ensure the camera is released even if an error occurs
+        cap.release()
 
 @app.route('/')
 def index():
