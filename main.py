@@ -11,6 +11,7 @@ with open('model.p', 'rb') as f:
 cap = cv2.VideoCapture(0)
 detector = HandDetector(maxHands=1)
 
+print("Starting Camera...")
 print("Translator is LIVE. Press 'q' to exit.")
 
 frame_timestamp_ms = 0
