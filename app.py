@@ -1,6 +1,7 @@
 import cv2
 import pickle
 import numpy as np
+import time
 from flask import Flask, render_template, Response
 from hand_tracking import HandDetector
 
@@ -29,8 +30,7 @@ def generate_frames():
                 print("Error: Failed to read frame from camera.")
                 break
                 
-            fps_prop = cap.get(cv2.CAP_PROP_FPS)
-            frame_timestamp_ms += int(1000 / fps_prop) if fps_prop > 0 else 30
+            frame_timestamp_ms = time.time_ns() // 1_000_000
             
             # Mirror the image for natural movement
             img = cv2.flip(img, 1)
@@ -41,11 +41,8 @@ def generate_frames():
             
             if lmList:
                 h, w, _ = img.shape
-                # Normalize coordinates
-                x_coords = [lm[1]/w for lm in lmList]
-                y_coords = [lm[2]/h for lm in lmList]
-                
-                features = np.array(x_coords + y_coords).reshape(1, -1)
+                # Normalize and extract coordinates directly
+                features = np.array([lm[1]/w for lm in lmList] + [lm[2]/h for lm in lmList]).reshape(1, -1)
                 
                 # Predict the gesture
                 prediction = model.predict(features)

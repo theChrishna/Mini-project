@@ -20,8 +20,7 @@ while True:
     success, img = cap.read()
     if not success: break
     
-    fps_prop = cap.get(cv2.CAP_PROP_FPS)
-    frame_timestamp_ms += int(1000 / fps_prop) if fps_prop > 0 else 30
+    frame_timestamp_ms = time.time_ns() // 1_000_000
     
     img = cv2.flip(img, 1)
     
@@ -35,11 +34,7 @@ while True:
     if lmList:
         h, w, _ = img.shape
      
-        x_coords = [lm[1]/w for lm in lmList]
-        y_coords = [lm[2]/h for lm in lmList]
-        
-    
-        features = np.array(x_coords + y_coords).reshape(1, -1)
+        features = np.array([lm[1]/w for lm in lmList] + [lm[2]/h for lm in lmList]).reshape(1, -1)
         
         prediction = model.predict(features)
         letter = str(prediction[0])
