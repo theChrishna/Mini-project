@@ -6,6 +6,7 @@ from flask import Flask, render_template, Response, request
 from hand_tracking import HandDetector
 
 app = Flask(__name__)  # Initialize the Flask application
+current_prediction = ""
 
 # 1. Load the trained model
 with open("model.p", "rb") as f:
@@ -53,6 +54,9 @@ def generate_frames():
                 # Predict the gesture
                 prediction = model.predict(features)
                 letter = str(prediction[0])
+
+                global current_prediction
+                current_prediction = letter
 
                 # Draw the UI on the frame
                 cv2.rectangle(
@@ -127,6 +131,9 @@ def report_false_detection():
     print("="*60 + "\n")
     return {"status": "success", "message": "Report sent"}
 
+@app.route('/prediction')
+def get_prediction():
+    return {"letter": current_prediction}
 
 if __name__ == "__main__":
     print("Starting Flask server on port 5000...")

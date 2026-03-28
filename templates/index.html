@@ -81,6 +81,9 @@
                 </div>
 
                 <div class="report-section">
+                    <button id="voiceBtn" class="btn-report" onclick="toggleVoice()" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); margin-bottom: 12px; box-shadow: 0 10px 20px -5px rgba(246, 211, 101, 0.5);">
+                        <span class="btn-icon">🔊</span> Enable Voice Assistant
+                    </button>
                     <button id="reportBtn" class="btn-report" onclick="reportDetection()">
                         <span class="btn-icon">⚠️</span> Report False Detection
                     </button>
@@ -88,6 +91,43 @@
                 </div>
 
                 <script>
+                    let voiceEnabled = false;
+                    let lastSpoken = "";
+
+                    function toggleVoice() {
+                        const btn = document.getElementById('voiceBtn');
+                        voiceEnabled = !voiceEnabled;
+                        if (voiceEnabled) {
+                            btn.innerHTML = '<span class="btn-icon">🔇</span> Disable Voice Assistant';
+                            btn.style.background = 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)';
+                            btn.style.boxShadow = '0 10px 20px -5px rgba(161, 140, 209, 0.5)';
+                            const utterance = new SpeechSynthesisUtterance("Voice assistant enabled. I will read your translated signs.");
+                            window.speechSynthesis.speak(utterance);
+                        } else {
+                            btn.innerHTML = '<span class="btn-icon">🔊</span> Enable Voice Assistant';
+                            btn.style.background = 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)';
+                            btn.style.boxShadow = '0 10px 20px -5px rgba(246, 211, 101, 0.5)';
+                            window.speechSynthesis.cancel();
+                            lastSpoken = "";
+                        }
+                    }
+
+                    // Native TTS interval checks AI translated letter buffer
+                    setInterval(() => {
+                        if(voiceEnabled) {
+                            fetch('/prediction')
+                                .then(r => r.json())
+                                .then(data => {
+                                    if(data.letter && data.letter !== lastSpoken) {
+                                        lastSpoken = data.letter;
+                                        const utterance = new SpeechSynthesisUtterance(data.letter);
+                                        utterance.rate = 1.0;
+                                        window.speechSynthesis.speak(utterance);
+                                    }
+                                }).catch(err => console.error(err));
+                        }
+                    }, 1500);
+
                     function reportDetection() {
                         const userMsg = prompt("Where is the false detection, or what gesture went wrong? 📝");
                         if (userMsg === null || userMsg.trim() === "") return; // Cancelled or empty
