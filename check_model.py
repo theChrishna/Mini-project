@@ -6,23 +6,27 @@ import pickle
 import sys
 
 try:
-    df = pd.read_csv('hand_data.csv', header=None)
+    df = pd.read_csv("hand_data.csv", header=None)
     print(f"Data successfully loaded. Shape: {df.shape}")
 except FileNotFoundError:
-    print("Error: 'hand_data.csv' not found. Please verify the file exists in this directory.")
+    print(
+        "Error: 'hand_data.csv' not found. Please verify the file exists in this directory."
+    )
     sys.exit(1)
 
 X = df.iloc[:, 1:]
 y = df.iloc[:, 0]
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
 
 print("Training Random Forest Classifier...")
 model = RandomForestClassifier(n_estimators=100, random_state=42, n_jobs=-1)
 model.fit(X_train, y_train)
 
 print("Saving the trained model to 'model.p'...")
-with open('model.p', 'wb') as f:
+with open("model.p", "wb") as f:
     pickle.dump(model, f)
 
 y_pred = model.predict(X_test)
@@ -39,3 +43,4 @@ labels = sorted(y.unique())
 cm = confusion_matrix(y_test, y_pred, labels=labels)
 cm_df = pd.DataFrame(cm, index=labels, columns=labels)
 print(cm_df)
+# End of model check
