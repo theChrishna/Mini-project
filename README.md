@@ -45,6 +45,8 @@ python app.py
 ```
 After the server boots, visit `http://localhost:5000` in your web browser. The webcam will open inside a beautiful UI and the program will begin recognizing and displaying your gestures in real-time.
 
+> **Latest Updates:** The `app.py` script has been optimized to run at a smoother 640x480 resolution for higher FPS and track-speed, and now features a live time telecast directly on the video stream.
+
 ## How It Works
 
 1. **Hand Tracking:** MediaPipe identifies 21 spatial points representing the joints and fingertips of a hand.
