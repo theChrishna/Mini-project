@@ -41,6 +41,25 @@
         <header class="app-header">
             <h1 class="glow-text">Sign Language Translator</h1>
             <p class="subtitle">Real-time computer vision powered by Random Forest</p>
+            
+            <div class="theme-switch-wrapper">
+                <span class="theme-label">🌞 Light</span>
+                <label class="theme-switch">
+                    <input type="checkbox" id="themeToggle" checked>
+                    <span class="slider round"></span>
+                </label>
+                <span class="theme-label">🌙 Dark</span>
+            </div>
+            <script>
+                const toggle = document.getElementById('themeToggle');
+                toggle.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        document.body.classList.remove('light-mode');
+                    } else {
+                        document.body.classList.add('light-mode');
+                    }
+                });
+            </script>
         </header>
 
         <section class="video-section">
