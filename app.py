@@ -106,6 +106,15 @@ def video_feed():
     )
 
 
+@app.route('/report', methods=['POST'])
+def report_false_detection():
+    # Notify the owner via terminal log
+    print("\n" + "="*50)
+    print("🚨 ALERT: False detection reported by user at front-end! 🚨")
+    print("="*50 + "\n")
+    return {"status": "success", "message": "Report sent"}
+
+
 if __name__ == "__main__":
     print("Starting Flask server on port 5000...")
     app.run(debug=True, port=5000)
