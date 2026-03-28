@@ -2,11 +2,21 @@ import cv2
 import pickle
 import numpy as np
 import time
+import os
+import google.generativeai as genai
 from flask import Flask, render_template, Response, request
 from hand_tracking import HandDetector
 
 app = Flask(__name__)  # Initialize the Flask application
 current_prediction = ""
+
+# Securely configure Gemini
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'dummy_key')
+genai.configure(api_key=GEMINI_API_KEY)
+try:
+    gemini_model = genai.GenerativeModel('gemini-1.5-flash')
+except Exception:
+    gemini_model = None
 
 # 1. Load the trained model
 with open("model.p", "rb") as f:
@@ -134,6 +144,22 @@ def report_false_detection():
 @app.route('/prediction')
 def get_prediction():
     return {"letter": current_prediction}
+
+@app.route('/chat', methods=['POST'])
+def chat_with_gemini():
+    if not gemini_model or GEMINI_API_KEY == 'dummy_key':
+        return {"response": "Hi! I am Gemini. 🤖 Please set your GEMINI_API_KEY environment variable in your terminal to enable my live responses!"}
+    
+    data = request.json or {}
+    message = data.get('message', '')
+    if not message:
+        return {"response": "I didn't hear anything! How can I help?"}
+        
+    try:
+        response = gemini_model.generate_content(message)
+        return {"response": response.text}
+    except Exception as e:
+        return {"response": f"Sorry, I encountered an error: {str(e)}"}
 
 if __name__ == "__main__":
     print("Starting Flask server on port 5000...")

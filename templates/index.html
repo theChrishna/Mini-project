@@ -165,15 +165,56 @@
         <!-- Community Section -->
         <section class="community-section glass-panel" style="margin-top: 2rem; padding: 1.5rem;">
             <h3 style="margin-bottom: 1rem; color: #fff;">💬 Community Interaction</h3>
-            <div class="community-chat" style="background: rgba(0,0,0,0.2); border-radius: 12px; height: 160px; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem;">
+            <div class="community-chat" id="communityChatBox" style="background: rgba(0,0,0,0.2); border-radius: 12px; height: 160px; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem;">
                 <div style="font-size: 0.95rem;"><strong style="color:var(--accent-color)">User123:</strong> The AI works perfectly for 'C' and 'O'! 👍💯</div>
                 <div style="font-size: 0.95rem;"><strong style="color:var(--success-color)">SignLearner:</strong> Can anyone share tips on angle for 'Thank You'? 🤔</div>
                 <div style="font-size: 0.95rem;"><strong style="color:#ff758c">UditBhatt:</strong> Try keeping your palm completely flat to the camera! ✨</div>
             </div>
             <div style="display: flex; gap: 0.5rem;">
-                <input type="text" placeholder="Say something to the community... ✍️" style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(255,255,255,0.05); color: var(--text-primary); outline: none;">
-                <button style="padding: 10px 20px; border-radius: 8px; border: none; background: var(--accent-color); color: white; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1" onclick="alert('Message sent to community! 🎉')">Send 🚀</button>
+                <input id="communityInput" type="text" placeholder="Chat with Gemini AI here... ✍️" style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(255,255,255,0.05); color: var(--text-primary); outline: none;" onkeypress="if(event.key === 'Enter') sendCommunityMessage()">
+                <button onclick="sendCommunityMessage()" style="padding: 10px 20px; border-radius: 8px; border: none; background: var(--accent-color); color: white; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">Send 🚀</button>
             </div>
+
+            <script>
+                function sendCommunityMessage() {
+                    const input = document.getElementById('communityInput');
+                    const msg = input.value.trim();
+                    if(!msg) return;
+                    
+                    const chatBox = document.getElementById('communityChatBox');
+                    
+                    // Display User Message
+                    const userDiv = document.createElement('div');
+                    userDiv.style.fontSize = '0.95rem';
+                    userDiv.innerHTML = `<strong style="color:var(--accent-color)">You:</strong> ${msg}`;
+                    chatBox.appendChild(userDiv);
+                    input.value = '';
+                    
+                    // Display Typing Indicator
+                    const botDiv = document.createElement('div');
+                    botDiv.style.fontSize = '0.95rem';
+                    botDiv.innerHTML = `<strong style="color:var(--success-color)">Gemini AI:</strong> <em style="color:#aaa;">thinking...</em>`;
+                    chatBox.appendChild(botDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                    
+                    // Connect to Backend Gemini API
+                    fetch('/chat', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ message: msg })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        // Markdown cleanup for simple html rendering
+                        const cleanResponse = data.response.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+                        botDiv.innerHTML = `<strong style="color:var(--success-color)">Gemini AI:</strong> <span style="color:#e6e6e6; line-height: 1.4;">${cleanResponse}</span>`;
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    })
+                    .catch(err => {
+                        botDiv.innerHTML = `<strong style="color:var(--success-color)">Gemini AI:</strong> <span style="color:#ff4b2b;">Connection Error!</span>`;
+                    });
+                }
+            </script>
         </section>
         
         <footer>
