@@ -2,7 +2,7 @@ import cv2
 import pickle
 import numpy as np
 import time
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request
 from hand_tracking import HandDetector
 
 app = Flask(__name__)  # Initialize the Flask application
@@ -25,6 +25,7 @@ def generate_frames():
         return
 
     frame_timestamp_ms = 0
+    prev_time = 0
 
     try:
         while True:
@@ -67,6 +68,14 @@ def generate_frames():
                     5,
                 )
 
+            # Calculate FPS
+            curr_time = time.time()
+            fps = 1 / (curr_time - prev_time) if prev_time else 0
+            prev_time = curr_time
+            
+            # Put FPS on screen
+            cv2.putText(img, f"FPS: {int(fps)} 👽", (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
             # Add live time telecast
             current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             cv2.putText(
@@ -108,10 +117,14 @@ def video_feed():
 
 @app.route('/report', methods=['POST'])
 def report_false_detection():
+    data = request.json or {}
+    message = data.get('message', 'No details provided by user.')
+    
     # Notify the owner via terminal log
-    print("\n" + "="*50)
+    print("\n" + "="*60)
     print("🚨 ALERT: False detection reported by user at front-end! 🚨")
-    print("="*50 + "\n")
+    print(f"📝 User Feedback: {message}")
+    print("="*60 + "\n")
     return {"status": "success", "message": "Report sent"}
 
 

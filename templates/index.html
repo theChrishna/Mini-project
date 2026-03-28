@@ -89,35 +89,73 @@
 
                 <script>
                     function reportDetection() {
+                        const userMsg = prompt("Where is the false detection, or what gesture went wrong? 📝");
+                        if (userMsg === null || userMsg.trim() === "") return; // Cancelled or empty
+                        
                         const btn = document.getElementById('reportBtn');
                         const msg = document.getElementById('reportMsg');
                         btn.disabled = true;
                         btn.innerHTML = 'Sending...';
                         
-                        fetch('/report', { method: 'POST' })
-                            .then(response => response.json())
-                            .then(data => {
-                                btn.innerHTML = 'Reported ✓';
-                                btn.classList.add('success-state');
-                                msg.style.opacity = '1';
-                                msg.style.transform = 'translateY(0)';
-                                
-                                setTimeout(() => {
-                                    btn.disabled = false;
-                                    btn.innerHTML = '<span class="btn-icon">⚠️</span> Report False Detection';
-                                    btn.classList.remove('success-state');
-                                    msg.style.opacity = '0';
-                                    msg.style.transform = 'translateY(10px)';
-                                }, 3000);
-                            });
+                        fetch('/report', { 
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({ message: userMsg })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            btn.innerHTML = 'Reported ✓';
+                            btn.classList.add('success-state');
+                            msg.style.opacity = '1';
+                            msg.style.transform = 'translateY(0)';
+                            
+                            setTimeout(() => {
+                                btn.disabled = false;
+                                btn.innerHTML = '<span class="btn-icon">⚠️</span> Report False Detection';
+                                btn.classList.remove('success-state');
+                                msg.style.opacity = '0';
+                                msg.style.transform = 'translateY(10px)';
+                            }, 3000);
+                        });
                     }
                 </script>
+            </div>
+        </section>
+
+        <!-- Community Section -->
+        <section class="community-section glass-panel" style="margin-top: 2rem; padding: 1.5rem;">
+            <h3 style="margin-bottom: 1rem; color: #fff;">💬 Community Interaction</h3>
+            <div class="community-chat" style="background: rgba(0,0,0,0.2); border-radius: 12px; height: 160px; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem;">
+                <div style="font-size: 0.95rem;"><strong style="color:var(--accent-color)">User123:</strong> The AI works perfectly for 'C' and 'O'! 👍💯</div>
+                <div style="font-size: 0.95rem;"><strong style="color:var(--success-color)">SignLearner:</strong> Can anyone share tips on angle for 'Thank You'? 🤔</div>
+                <div style="font-size: 0.95rem;"><strong style="color:#ff758c">UditBhatt:</strong> Try keeping your palm completely flat to the camera! ✨</div>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <input type="text" placeholder="Say something to the community... ✍️" style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(255,255,255,0.05); color: var(--text-primary); outline: none;">
+                <button style="padding: 10px 20px; border-radius: 8px; border: none; background: var(--accent-color); color: white; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1" onclick="alert('Message sent to community! 🎉')">Send 🚀</button>
             </div>
         </section>
         
         <footer>
             <p>Powered by MediaPipe & Scikit-Learn</p>
         </footer>
+
+        <!-- Floating Chatbot popup -->
+        <div id="chatbotPopup" onclick="alert('Chatbot: Im glad you are here! Enjoy learning sign language! 🌟')" style="position: fixed; bottom: -100px; right: 20px; background: var(--panel-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--panel-border); border-radius: 20px; padding: 15px 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000; cursor: pointer;">
+            <div style="font-size: 2.2rem; animation: pulse 2s infinite;">🤖</div>
+            <div>
+                <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-primary);">AI Assistant</h4>
+                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">Hey! How was your day? 🌤️</p>
+            </div>
+        </div>
+        <script>
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    const bot = document.getElementById('chatbotPopup');
+                    if(bot) bot.style.bottom = '20px';
+                }, 4000);
+            });
+        </script>
     </main>
 </body>
 </html>

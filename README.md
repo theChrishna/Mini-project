@@ -47,10 +47,11 @@ After the server boots, visit `http://localhost:5000` in your web browser. The w
 
 > **Latest Updates:** 
 > - **FPS Optimization:** The `app.py` script runs at a smoother 640x480 resolution for drastically improved track-speed.
-> - **Live Telecast:** A real-time live clock has been overlaid consistently onto the video steam.
+> - **Real-time FPS Telecast:** The video feed securely prints the rendering frames-per-second and live clock to directly benchmark system speed.
 > - **Catchy UI Redesign:** Fully revamped the web UI using glassmorphism, dynamic gradients, and an animated pre-detection loading screen.
 > - **Light/Dark Toggle:** Added an interactive slider toggle allowing users to instantly swap between sleek dark mode and bright light mode themes.
-> - **Report Feedback:** Implemented a new button in the UI that relays false detection events to the backend, alerting the maintainer.
+> - **Interactive Experiences:** Introduced a sliding AI chatbot interface and a localized Community Discussion chat section for maximum user interactions.
+> - **Advanced Feedback Reporting:** Implemented an interactive prompt that transmits highly detailed review payloads about false detections directly to the backend maintainer.
 
 ## How It Works
 
