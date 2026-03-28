@@ -1,12 +1,12 @@
 :root {
-    --bg-color: #0d1117;
-    --panel-bg: rgba(22, 27, 34, 0.6);
-    --panel-border: rgba(255, 255, 255, 0.1);
-    --text-primary: #f0f6fc;
-    --text-secondary: #8b949e;
-    --accent-color: #58a6ff;
-    --accent-glow: rgba(88, 166, 255, 0.4);
-    --success-color: #3fb950;
+    --bg-color: #070402;
+    --panel-bg: rgba(20, 15, 10, 0.65);
+    --panel-border: rgba(255, 136, 0, 0.15);
+    --text-primary: #fdfdfd;
+    --text-secondary: #a3958c;
+    --accent-color: #ff7b00;
+    --accent-glow: rgba(255, 123, 0, 0.5);
+    --success-color: #00e676;
     --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -36,8 +36,8 @@ body {
     width: 100vw;
     height: 100vh;
     z-index: -1;
-    background: radial-gradient(circle at 15% 50%, rgba(88, 166, 255, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 85% 30%, rgba(137, 87, 229, 0.08) 0%, transparent 50%);
+    background: radial-gradient(circle at 15% 50%, rgba(255, 123, 0, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(252, 96, 118, 0.08) 0%, transparent 50%);
     animation: slowPan 20s infinite alternate ease-in-out;
 }
 
@@ -73,12 +73,13 @@ body {
     font-size: 3.5rem;
     font-weight: 800;
     letter-spacing: -2px;
-    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    background: linear-gradient(135deg, #ff9a44 0%, #fc6076 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0px 0px 40px rgba(79, 172, 254, 0.6);
+    text-shadow: 0px 0px 40px rgba(255, 123, 0, 0.5);
     margin-bottom: 0.5rem;
+    transition: all 0.5s ease-in-out;
 }
 
 .subtitle {
@@ -92,18 +93,18 @@ body {
 
 /* Glassmorphism Panels */
 .glass-panel {
-    background: rgba(16, 20, 30, 0.5);
+    background: rgba(20, 15, 10, 0.5);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 136, 0, 0.2);
     border-radius: 24px;
-    box-shadow: 0 15px 45px -12px rgba(31, 38, 135, 0.6);
-    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease;
+    box-shadow: 0 15px 45px -12px rgba(0, 0, 0, 0.8);
+    transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.5s ease;
 }
 
 .glass-panel:hover {
     transform: translateY(-4px);
-    box-shadow: 0 35px 65px -12px rgba(31, 38, 135, 0.8), 0 0 30px rgba(88, 166, 255, 0.25);
+    box-shadow: 0 35px 65px -12px rgba(255, 123, 0, 0.3), 0 0 30px rgba(255, 123, 0, 0.2);
 }
 
 /* Layout */
@@ -152,8 +153,8 @@ body {
     left: 0;
     width: 100%;
     height: 3px;
-    background: linear-gradient(to right, transparent, #00f2fe, #4facfe, transparent);
-    box-shadow: 0 0 25px #00f2fe;
+    background: linear-gradient(to right, transparent, #ff9a44, #ff7b00, transparent);
+    box-shadow: 0 0 25px #ff7b00;
     opacity: 0.6;
     animation: scan 2.5s linear infinite;
 }
@@ -378,8 +379,8 @@ footer {
 .loader-progress {
     width: 0%;
     height: 100%;
-    background: linear-gradient(90deg, #00f2fe, #4facfe);
-    box-shadow: 0 0 15px #00f2fe;
+    background: linear-gradient(90deg, #ff9a44, #fc6076);
+    box-shadow: 0 0 15px #ff7b00;
     animation: loadTrack 2.5s ease-in-out forwards;
 }
 
@@ -395,26 +396,27 @@ footer {
 }
 
 @keyframes pulseGlow {
-    0%, 100% { filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.4)); }
-    50% { filter: drop-shadow(0 0 35px rgba(0, 242, 254, 0.8)); }
+    0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 123, 0, 0.4)); }
+    50% { filter: drop-shadow(0 0 35px rgba(255, 123, 0, 0.8)); }
 }
 
 /* Light Mode Theme overrides */
 body.light-mode {
-    --bg-color: #f0f6fc;
-    --panel-bg: rgba(255, 255, 255, 0.7);
-    --panel-border: rgba(0, 0, 0, 0.08);
-    --text-primary: #1f2328;
-    --text-secondary: #656d76;
-    --accent-color: #0969da;
-    --accent-glow: rgba(9, 105, 218, 0.4);
+    --bg-color: #fef5eb;
+    --panel-bg: rgba(255, 255, 255, 0.85);
+    --panel-border: rgba(255, 136, 0, 0.3);
+    --text-primary: #211a14;
+    --text-secondary: #705b4d;
+    --accent-color: #e65c00;
+    --accent-glow: rgba(230, 92, 0, 0.4);
 }
 body.light-mode .glow-text {
-    background: linear-gradient(135deg, #0969da 0%, #2188ff 100%);
+    background: linear-gradient(135deg, #e65c00 0%, #f9d423 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    text-shadow: 0px 4px 15px rgba(9, 105, 218, 0.25);
+    text-shadow: 0px 4px 15px rgba(230, 92, 0, 0.3);
+    transition: all 0.5s ease-in-out;
 }
 
 /* Theme Toggle Slider */
