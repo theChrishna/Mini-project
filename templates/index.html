@@ -275,5 +275,39 @@
             });
         </script>
     </main>
+
+    <!-- Harry Potter Theme Engine -->
+    <audio id="hpTheme" loop autoplay>
+        <source src="https://ia800504.us.archive.org/21/items/HarryPotterTheme_201710/Harry%20Potter%20Theme.mp3" type="audio/mpeg">
+    </audio>
+    <button id="musicToggle" onclick="toggleMusic(event)" style="position:fixed; bottom:20px; left:20px; background:var(--panel-bg); border:1px solid var(--panel-border); color:var(--text-primary); padding:10px 15px; border-radius:12px; cursor:pointer; backdrop-filter:blur(10px); z-index:1000; box-shadow:0 5px 15px rgba(255,123,0,0.3); font-weight:bold; transition:all 0.3s ease;">
+        🎵 Music: ON
+    </button>
+    <script>
+        function toggleMusic(e) {
+            if(e) e.stopPropagation(); // prevent bloop
+            const audio = document.getElementById('hpTheme');
+            const btn = document.getElementById('musicToggle');
+            if (audio.paused) {
+                audio.play();
+                btn.innerHTML = '🎵 Music: ON';
+                btn.style.boxShadow = '0 5px 15px rgba(255,123,0,0.3)';
+            } else {
+                audio.pause();
+                btn.innerHTML = '🔇 Music: OFF';
+                btn.style.boxShadow = '0 5px 15px rgba(0,0,0,0.5)';
+            }
+        }
+        window.addEventListener('load', () => {
+            const audio = document.getElementById('hpTheme');
+            audio.volume = 0.3; 
+            const promise = audio.play();
+            if (promise !== undefined) {
+                promise.catch(e => {
+                    document.getElementById('musicToggle').innerHTML = '🔇 Music: OFF';
+                });
+            }
+        });
+    </script>
 </body>
 </html>
