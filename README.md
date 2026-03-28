@@ -1,60 +1,53 @@
-# Sign Language / Gesture Translator
+# AI Sign Language & Gesture Translator
 
-A real-time hand gesture recognition and sign language translation system. This project uses your webcam to track hand movements using **MediaPipe**, collects custom dataset features, and classifies the gestures in real time using a **Random Forest Classifier** built with scikit-learn.
+An advanced, real-time hand gesture recognition and sign language translation web application. This project uses your webcam to track hand movements via **MediaPipe**, processes spatial coordinates natively, and translates gestures instantly using a robust **Deep Learning Neural Network (MLP)** pipeline built with scikit-learn.
 
 ## Project Structure
 
-- **`hand_tracking.py`**: A helper module that wraps around the MediaPipe Tasks API (`hand_landmarker.task`) for accurate hand tracking. It extracts 21 hand landmarks and visualizes them on the frame. *Recently refactored for improved error handling and clean, comment-free architecture.*
-- **`data_collection.py`**: A script used to build your custom gesture dataset. It captures webcam frames, normalizes the 21 `(x, y)` hand landmarks, and saves them to a CSV file (`hand_data.csv`).
-- **`check_model.py` / `train_model.py`**: Reads your collected data, splits it into training and testing sets (using stratification), and trains a Random Forest Classifier. The trained model is saved as a Python pickle file (`model.p`).
-- **`main.py`**: The real-time translation application. It loads your trained model, processes live webcam video to extract normalized hand landmarks, and predicts the specific gesture/sign, rendering the result directly on the screen along with a live FPS counter.
+- **`hand_tracking.py`**: A computer-vision handler wrapping the MediaPipe Tasks API. It extracts 21 precise 3D hand landmarks, normalizes them, and actively visualizes bounding boxes and tracking data on the live frame.
+- **`collect_all_signs.py`**: An automated mass data-collection script designed to sequentially prompt and record hundreds of high-quality dataset frames for every single letter from A to Z, ensuring phenomenal model accuracy.
+- **`data_collection.py`**: A manual script for targeted gesture recording and data generation.
+- **`train_model.py` / `check_model.py`**: The Artificial Intelligence engine. Reads your custom dataset, auto-scales the features using `StandardScaler`, and trains a highly performant **Deep Neural Network (`MLPClassifier`)** for complex gesture recognition. Saves the compiled network to `model.p`.
+- **`app.py`**: The core Flask backend server. It handles real-time live webcam processing, authenticates users, serves the interactive chat APIs, and broadcasts telemetry to the frontend.
+- **`templates/` & `static/`**: Houses the premium Dark/Orange glassmorphism UI, Audio Synthesizers, and the secure Authentication Portal.
 
 ## Prerequisites
 
 Ensure you have Python 3.8+ installed on your system. You can install all required dependencies using `pip`:
 
 ```bash
-pip install opencv-python mediapipe pandas scikit-learn numpy
+pip install opencv-python mediapipe pandas scikit-learn numpy flask google-generativeai yt-dlp
 ```
 
-> **Note:** The MediaPipe Hand Landmarker relies on the `hand_landmarker.task` model file, which must be present in your project directory.
+> **Note:** Set your Google Gemini API Key in your terminal (`$env:GEMINI_API_KEY="YOUR_KEY"`) before running the app to enable the live chatbot!
 
 ## How to use
 
-### 1. Collect Data for Custom Gestures
-Open `data_collection.py` and modify the `label = "..."` variable near the top (e.g., set it to "A", "B", "Hello").
-Run the script:
+### 1. Generate Your Dataset
+To teach the AI, you must collect data for the gestures you want it to know. The easiest way is to run the automated mass-collector:
 ```bash
-python data_collection.py
+python collect_all_signs.py
 ```
-- Show the corresponding gesture to the camera.
-- Press **`s`** to save a frame to your dataset (`hand_data.csv`). Save multiple frames at various angles and distances for better accuracy!
-- Press **`q`** to quit when you are done. *Repeat this step for every new gesture you want to add to your dataset.*
+Follow the on-screen prompts to record massive arrays of data for all 26 letters of the alphabet automatically.
 
-### 2. Train the Machine Learning Model
-Once you have collected sufficient data for all your target gestures, train the Random Forest Classifier by running:
+### 2. Train the Deep Learning Model
+Once the massive dataset (`hand_data.csv`) is generated, train your Neural Network:
 ```bash
 python train_model.py
 ```
-This script will output the accuracy of your model on the test data split and save the compiled parameters into `model.p`.
+This builds and tests the `MLPClassifier` pipeline and outputs the final mathematical model to `model.p`.
 
-### 3. Run the Real-Time Web Translator
-Start the live prediction Flask pipeline:
+### 3. Run the Live Web Portal
+Boot up the secure local Flask server:
 ```bash
 python app.py
 ```
-After the server boots, visit `http://localhost:5000` in your web browser. The webcam will open inside a beautiful UI and the program will begin recognizing and displaying your gestures in real-time.
+Open `http://localhost:5000` in your web browser. You will be greeted by the **AI Security Portal**. Use the interactive Google Auth or Mobile OTP simulators to securely log into the system, and the AI will begin tracking and translating your sign language in real time!
 
-> **Latest Updates:** 
-> - **FPS Optimization:** The `app.py` script runs at a smoother 640x480 resolution for drastically improved track-speed.
-> - **Real-time FPS Telecast:** The video feed securely prints the rendering frames-per-second and live clock to directly benchmark system speed.
-> - **Catchy UI Redesign:** Fully revamped the web UI using glassmorphism, dynamic gradients, and an animated pre-detection loading screen.
-> - **Light/Dark Toggle:** Added an interactive slider toggle allowing users to instantly swap between sleek dark mode and bright light mode themes.
-> - **Interactive Experiences:** Introduced a sliding AI chatbot interface and a localized Community Discussion chat section for maximum user interactions.
-> - **Advanced Feedback Reporting:** Implemented an interactive prompt that transmits highly detailed review payloads about false detections directly to the backend maintainer.
-
-## How It Works
-
-1. **Hand Tracking:** MediaPipe identifies 21 spatial points representing the joints and fingertips of a hand.
-2. **Normalization:** The `(x, y)` pixel coordinates are normalized against the width and height of the image frame so that gestures are recognized accurately regardless of how close or far your hand is from the camera.
-3. **Classification:** A pre-trained Random Forest model takes the flattened array of those formatted 42 coordinate features and maps it to the learned gesture label.
+## Latest Advanced Upgrades
+- **Deep Learning Upgrade:** Replaced the legacy Random Forest algorithm with a powerful Deep Neural Network (MLP) Pipeline for drastically improved prediction accuracy.
+- **Mass Dataset Collector:** Introduced `collect_all_signs.py` to recursively collect training data for the entire alphabet natively.
+- **AI Authentication Portal:** Access is fully protected by a custom-styled Login interface natively supporting interactive Google Auth and Mobile SMS verification workflows.
+- **Gemini Chat Hub:** The community interaction board is directly wired into the `gemini-1.5-flash` LLM, allowing you to converse with the AI in real time right from the web panel!
+- **Web Audio TTS & Synth:** Powered by native browser audio contexts, the app visually synthesizes the Harry Potter Theme Song mathematically in the background, features interactive UI "bloop" sounds, and includes a **Voice Assistant** that reads translated gestures out loud.
+- **Premium UX Redesign:** Features an entirely new Black & Vibrant Orange Glassmorphism UI, tracking bounding-boxes, floating background particle orbs, smooth CSS transitions, and an integrated FPS telemetry feed.
