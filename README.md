@@ -45,7 +45,12 @@ python app.py
 ```
 After the server boots, visit `http://localhost:5000` in your web browser. The webcam will open inside a beautiful UI and the program will begin recognizing and displaying your gestures in real-time.
 
-> **Latest Updates:** The `app.py` script has been optimized to run at a smoother 640x480 resolution for higher FPS and track-speed, and now features a live time telecast directly on the video stream.
+> **Latest Updates:** 
+> - **FPS Optimization:** The `app.py` script runs at a smoother 640x480 resolution for drastically improved track-speed.
+> - **Live Telecast:** A real-time live clock has been overlaid consistently onto the video steam.
+> - **Catchy UI Redesign:** Fully revamped the web UI using glassmorphism, dynamic gradients, and an animated pre-detection loading screen.
+> - **Light/Dark Toggle:** Added an interactive slider toggle allowing users to instantly swap between sleek dark mode and bright light mode themes.
+> - **Report Feedback:** Implemented a new button in the UI that relays false detection events to the backend, alerting the maintainer.
 
 ## How It Works
 
