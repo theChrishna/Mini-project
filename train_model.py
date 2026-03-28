@@ -19,8 +19,16 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-# 4. Train the Random Forest Classifier
-model = RandomForestClassifier(n_estimators=100)
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+
+# 4. Train the Deep Neural Network Pipeline
+print("Training Deep Neural Network...")
+model = Pipeline([
+    ('scaler', StandardScaler()),
+    ('mlp', MLPClassifier(hidden_layer_sizes=(128, 64, 32), max_iter=2000, random_state=42, early_stopping=True))
+])
 model.fit(X_train, y_train)
 
 # 5. Check accuracy
