@@ -277,8 +277,8 @@
     </main>
 
     <!-- Harry Potter Theme Engine -->
-    <audio id="hpTheme" loop autoplay>
-        <source src="https://ia800504.us.archive.org/21/items/HarryPotterTheme_201710/Harry%20Potter%20Theme.mp3" type="audio/mpeg">
+    <audio id="hpTheme" loop autoplay preload="auto">
+        <source src="{{ url_for('static', filename='hp_theme.m4a') }}" type="audio/mp4">
     </audio>
     <button id="musicToggle" onclick="toggleMusic(event)" style="position:fixed; bottom:20px; left:20px; background:var(--panel-bg); border:1px solid var(--panel-border); color:var(--text-primary); padding:10px 15px; border-radius:12px; cursor:pointer; backdrop-filter:blur(10px); z-index:1000; box-shadow:0 5px 15px rgba(255,123,0,0.3); font-weight:bold; transition:all 0.3s ease;">
         🎵 Music: ON
