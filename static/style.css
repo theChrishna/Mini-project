@@ -419,6 +419,31 @@ body.light-mode .glow-text {
     transition: all 0.5s ease-in-out;
 }
 
+/* Animated Floating Orbs */
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    animation: floatOrb 15s infinite ease-in-out alternate;
+    z-index: -1;
+}
+
+.orb1 { width: 350px; height: 350px; background: #ff7b00; top: 10%; left: 10%; animation-delay: 0s; }
+.orb2 { width: 450px; height: 450px; background: #fc6076; bottom: 5%; right: 5%; animation-delay: -5s; }
+.orb3 { width: 300px; height: 300px; background: #ff9a44; top: 40%; left: 50%; animation-delay: -10s; }
+
+@keyframes floatOrb {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(30px, 60px) scale(1.1); }
+    100% { transform: translate(-40px, -20px) scale(0.9); }
+}
+
+/* Upgrade light mode orbs */
+body.light-mode .orb1 { background: #f9d423; opacity: 0.3; }
+body.light-mode .orb2 { background: #e65c00; opacity: 0.2; }
+body.light-mode .orb3 { background: #ff9a44; opacity: 0.3; }
+
 /* Theme Toggle Slider */
 .theme-switch-wrapper {
     display: flex;

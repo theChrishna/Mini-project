@@ -68,6 +68,16 @@ def generate_frames():
                 global current_prediction
                 current_prediction = letter
 
+                # Calculate and Draw bounding box around hand
+                x_coords = [lm[1] for lm in lmList]
+                y_coords = [lm[2] for lm in lmList]
+                xmin, xmax = min(x_coords), max(x_coords)
+                ymin, ymax = min(y_coords), max(y_coords)
+                
+                # Orange Bounding Box padding
+                cv2.rectangle(img, (max(0, xmin - 20), max(0, ymin - 20)), 
+                              (min(w, xmax + 20), min(h, ymax + 20)), (0, 165, 255), 2)
+
                 # Draw the UI on the frame
                 cv2.rectangle(
                     img, (20, 20), (150, 120), (255, 99, 71), cv2.FILLED

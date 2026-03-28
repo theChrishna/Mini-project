@@ -12,7 +12,44 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="background-animation"></div>
+    <div class="background-animation">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+    </div>
+    
+    <!-- Audio Click Sound Engine -->
+    <script>
+        let audioCtx;
+        function playClickSound() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.type = 'sine'; // Smooth clean bloop
+            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // Start pitch
+            oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1); // Drop pitch fast
+            
+            gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime); // Volume
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); // Fade out
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.addEventListener('click', (e) => {
+                if (e.target.closest('button') || e.target.closest('.theme-switch') || e.target.closest('#chatbotPopup') || e.target.closest('.community-chat')) {
+                    playClickSound();
+                }
+            });
+        });
+    </script>
     
     <!-- Initial Loading Overlay -->
     <div id="loaderOverlay" class="loader-overlay">
