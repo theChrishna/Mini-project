@@ -128,6 +128,10 @@ def generate_frames():
 
 
 @app.route("/")
+def login():
+    return render_template("login.html")
+
+@app.route("/translator")
 def index():
     return render_template("index.html")
 

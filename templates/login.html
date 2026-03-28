@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AI Translator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; overflow: hidden; margin: 0; }
+        .login-box { text-align: center; max-width: 420px; width: 90%; padding: 2.5rem; animation: slideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 10; }
+        
+        .auth-btn { width: 100%; padding: 16px; margin: 10px 0; border: none; border-radius: 12px; font-size: 1.05rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.3s ease; }
+        .btn-google { background: #ffffff; color: #333333; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #dddddd; }
+        .btn-google:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        
+        .btn-phone { background: linear-gradient(135deg, #ff9a44 0%, #ff7b00 100%); color: white; box-shadow: 0 5px 20px rgba(255, 123, 0, 0.4); }
+        .btn-phone:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(255, 123, 0, 0.6); }
+        
+        .otp-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); animation: fadeIn 0.3s ease; }
+        .otp-content { width: 350px; padding: 2.5rem; background: var(--panel-bg); border-radius: 24px; border: 1px solid var(--panel-border); text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .otp-input { width: 100%; padding: 15px; margin: 20px 0; border-radius: 12px; border: 1px solid var(--panel-border); background: rgba(255,255,255,0.08); color: var(--text-primary); text-align: center; letter-spacing: 10px; font-size: 1.8rem; outline: none; font-weight: bold; transition: 0.3s; }
+        .otp-input:focus { border-color: var(--accent-color); background: rgba(255,255,255,0.15); box-shadow: 0 0 15px var(--accent-glow); }
+        
+        @keyframes slideUp { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="light-mode">
+    <div class="background-animation">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+    </div>
+    
+    <div class="login-box glass-panel">
+        <h1 class="glow-text" style="font-size: 2.4rem; margin-bottom: 0.5rem; line-height: 1.1;">AI Security Portal</h1>
+        <p style="color: var(--text-secondary); margin-bottom: 2.5rem; font-size: 0.95rem;">Authenticate securely to access the highly restricted Real-Time Sign Language AI.</p>
+        
+        <button class="auth-btn btn-google" onclick="simulateGoogleLogin()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="22" alt="Google"> 
+            Continue with Google
+        </button>
+        
+        <div style="margin: 25px 0; color: var(--text-secondary); display: flex; align-items: center; gap: 15px; font-size: 0.85rem; font-weight: bold;">
+            <hr style="flex:1; border:none; border-top: 1px solid var(--panel-border);">
+            <span>OR CONNECT WITH</span>
+            <hr style="flex:1; border:none; border-top: 1px solid var(--panel-border);">
+        </div>
+        
+        <button class="auth-btn btn-phone" onclick="document.getElementById('otpModal').style.display = 'flex'">
+            <span style="font-size: 1.3rem;">📱</span> Mobile Number OTP
+        </button>
+    </div>
+
+    <!-- OTP Verification Modal -->
+    <div id="otpModal" class="otp-modal">
+        <div class="otp-content glass-panel" id="otpBox">
+            <h2 style="color: var(--text-primary); margin-bottom: 5px; font-size: 1.6rem;">Check your phone</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">We sent a verification code to your mobile device. Enter any 4-digit token to simulate.</p>
+            
+            <input type="text" class="otp-input" maxlength="4" placeholder="••••" id="otpCode" onkeypress="if(event.key === 'Enter') verifyOTP()">
+            
+            <button class="auth-btn btn-phone" onclick="verifyOTP()">Verify Identity</button>
+            <button class="auth-btn" style="background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); margin-top: 10px;" onclick="document.getElementById('otpModal').style.display = 'none'">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio Synthesizer hook for click sounds
+        let audioCtx;
+        function playBloop() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+        
+        document.body.addEventListener('click', (e) => {
+            if (e.target.closest('button')) playBloop();
+        });
+
+        function simulateGoogleLogin() {
+            const btn = document.querySelector('.btn-google');
+            btn.innerHTML = "🔄 Authenticating with Google...";
+            setTimeout(() => {
+                window.location.href = '/translator';
+            }, 1500);
+        }
+
+        function verifyOTP() {
+            const code = document.getElementById('otpCode').value;
+            if (code.length === 4) {
+                const box = document.getElementById('otpBox');
+                box.innerHTML = '<h2 style="color:var(--success-color); font-size: 2rem;">Verified! ✅</h2><p style="color:var(--text-secondary); margin-top:10px;">Security token accepted. Redirecting you to the AI Terminal...</p>';
+                setTimeout(() => {
+                    window.location.href = '/translator';
+                }, 1800);
+            } else {
+                alert("ACCESS DENIED: Please enter a valid 4-digit OTP code.");
+            }
+        }
+    </script>
+</body>
+</html>
