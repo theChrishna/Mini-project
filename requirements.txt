@@ -1,0 +1,8 @@
+mediapipe>=0.10.0
+opencv-python>=4.8.0
+deepface>=0.0.79
+requests>=2.31.0
+elevenlabs>=0.2.26
+pyttsx3>=2.90
+tf-keras
+protobuf>=6.31.1

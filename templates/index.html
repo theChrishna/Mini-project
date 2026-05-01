@@ -3,333 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Real-time web translator for sign language using machine learning.">
-    <title>Sign Language Translator</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- Load Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Signfy Web</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0f0f0f;
+            color: #fafafa;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .header {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            background-color: #141414;
+            border-bottom: 1px solid #333;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            margin: 0;
+            font-weight: 800;
+            letter-spacing: -1px;
+            font-size: 2rem;
+            background: linear-gradient(90deg, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .video-container {
+            position: relative;
+            width: 1280px;
+            max-width: 95vw;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            background-color: #000;
+            border: 1px solid #333;
+        }
+
+        .video-container img {
+            width: 100%;
+            display: block;
+        }
+
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1200px;
+        }
+
+        button {
+            background-color: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #3a3a3a;
+            border-color: #666;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-action {
+            background-color: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+        }
+        
+        .btn-action:hover {
+            background-color: #e0e0e0;
+            border-color: #e0e0e0;
+        }
+
+        .btn-danger {
+            background-color: #3d1c1c;
+            color: #ff6b6b;
+            border-color: #5c2b2b;
+        }
+        
+        .btn-danger:hover {
+            background-color: #4f2525;
+            border-color: #7a3a3a;
+        }
+
+        .toggle-on {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .toggle-off {
+            border-left: 4px solid #f44336;
+        }
+
+        .footer {
+            margin-top: auto;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .record-panel {
+            margin-top: 20px;
+            padding: 15px 20px;
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .record-panel input {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background-color: #0f0f0f;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            width: 200px;
+        }
+
+        .record-panel input:focus {
+            outline: none;
+            border-color: #888;
+        }
+
+        .btn-record {
+            background-color: #ff3b3b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+        }
+
+        .btn-record:hover {
+            background-color: #ff5252;
+        }
+    </style>
 </head>
 <body>
-    <div class="background-animation">
-        <div class="orb orb1"></div>
-        <div class="orb orb2"></div>
-        <div class="orb orb3"></div>
-    </div>
-    
-    <!-- Audio Click Sound Engine -->
-    <script>
-        let audioCtx;
-        function playClickSound() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            
-            oscillator.type = 'sine'; // Smooth clean bloop
-            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // Start pitch
-            oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1); // Drop pitch fast
-            
-            gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime); // Volume
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1); // Fade out
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.1);
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            document.body.addEventListener('click', (e) => {
-                if (e.target.closest('button') || e.target.closest('.theme-switch') || e.target.closest('#chatbotPopup') || e.target.closest('.community-chat')) {
-                    playClickSound();
-                }
-            });
-        });
-    </script>
-    
-    <!-- Initial Loading Overlay -->
-    <div id="loaderOverlay" class="loader-overlay">
-        <div class="loader-content">
-            <div class="ai-brain-icon">🧠</div>
-            <h2 class="loader-text">Initializing AI Models...</h2>
-            <div class="loader-bar">
-                <div class="loader-progress"></div>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const loader = document.getElementById('loaderOverlay');
-                if (loader) {
-                    loader.style.opacity = '0';
-                    loader.style.visibility = 'hidden';
-                }
-            }, 2600);
-        });
-    </script>
 
-    <main class="container">
-        <header class="app-header">
-            <h1 class="glow-text">Sign Language Translator</h1>
-            <p class="subtitle">Real-time computer vision powered by Random Forest</p>
-            
-            <div class="theme-switch-wrapper">
-                <span class="theme-label">🌞 Light</span>
-                <label class="theme-switch">
-                    <input type="checkbox" id="themeToggle" checked>
-                    <span class="slider round"></span>
-                </label>
-                <span class="theme-label">🌙 Dark</span>
-            </div>
-            <script>
-                const toggle = document.getElementById('themeToggle');
-                toggle.addEventListener('change', (e) => {
-                    if (e.target.checked) {
-                        document.body.classList.remove('light-mode');
-                    } else {
-                        document.body.classList.add('light-mode');
-                    }
+    <div class="header">
+        <h1>Signfy</h1>
+    </div>
+
+    <div class="video-container">
+        <!-- The video stream from Flask backend -->
+        <img src="/video_feed" alt="Video Stream Loading...">
+    </div>
+
+    <div class="controls">
+        <button id="btn-hand" class="toggle-on" onclick="toggleFeature('hand', this)">Hand Tracking</button>
+        <button id="btn-emotion" class="toggle-on" onclick="toggleFeature('emotion', this)">Emotion Detection</button>
+        <button id="btn-llm" class="toggle-on" onclick="toggleFeature('llm', this)">Gemini Translator</button>
+        <button id="btn-voice" class="toggle-on" onclick="toggleFeature('voice', this)">Voice Output</button>
+        
+        <div style="width: 20px;"></div> <!-- Spacer -->
+        
+        <button class="btn-action" onclick="speakManual()">Speak Sentence</button>
+        <button class="btn-danger" onclick="clearBuffer()">Clear Buffer</button>
+    </div>
+
+    <div class="record-panel">
+        <input type="text" id="customWord" placeholder="Enter word to record..." autocomplete="off">
+        <button class="btn-record" onclick="recordSign()">🔴 Record Custom Sign</button>
+    </div>
+
+    <div class="footer">
+        Signfy ASL Translator &bull; Local Web App Engine
+    </div>
+
+    <script>
+        // API Calls to Flask Backend
+        async function toggleFeature(feature, element) {
+            try {
+                const response = await fetch('/api/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ feature: feature })
                 });
-            </script>
-        </header>
-
-        <section class="video-section">
-            <div class="video-container glass-panel">
-                <div class="stream-wrapper">
-                    <img id="videoStream" src="{{ url_for('video_feed') }}" alt="Live Sign Language Translation Stream">
-                    <div class="scanning-line"></div>
-                </div>
-            </div>
-            
-            <div class="controls glass-panel">
-                <div class="status-indicator">
-                    <span class="pulse-dot"></span>
-                    <span class="status-text">System Active</span>
-                </div>
-                <div class="info-card">
-                    <h3>Instructions</h3>
-                    <p>Ensure your hand is clearly visible in the camera frame. The AI will translate your trained gestures in real-time.</p>
-                </div>
-
-                <div class="report-section">
-                    <button id="voiceBtn" class="btn-report" onclick="toggleVoice()" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); margin-bottom: 12px; box-shadow: 0 10px 20px -5px rgba(246, 211, 101, 0.5);">
-                        <span class="btn-icon">🔊</span> Enable Voice Assistant
-                    </button>
-                    <button id="reportBtn" class="btn-report" onclick="reportDetection()">
-                        <span class="btn-icon">⚠️</span> Report False Detection
-                    </button>
-                    <p id="reportMsg" class="report-msg">Report submitted successfully!</p>
-                </div>
-
-                <script>
-                    let voiceEnabled = false;
-                    let lastSpoken = "";
-
-                    function toggleVoice() {
-                        const btn = document.getElementById('voiceBtn');
-                        voiceEnabled = !voiceEnabled;
-                        if (voiceEnabled) {
-                            btn.innerHTML = '<span class="btn-icon">🔇</span> Disable Voice Assistant';
-                            btn.style.background = 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)';
-                            btn.style.boxShadow = '0 10px 20px -5px rgba(161, 140, 209, 0.5)';
-                            const utterance = new SpeechSynthesisUtterance("Voice assistant enabled. I will read your translated signs.");
-                            window.speechSynthesis.speak(utterance);
-                        } else {
-                            btn.innerHTML = '<span class="btn-icon">🔊</span> Enable Voice Assistant';
-                            btn.style.background = 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)';
-                            btn.style.boxShadow = '0 10px 20px -5px rgba(246, 211, 101, 0.5)';
-                            window.speechSynthesis.cancel();
-                            lastSpoken = "";
-                        }
+                const data = await response.json();
+                if (data.status === 'success') {
+                    if (data.state) {
+                        element.classList.remove('toggle-off');
+                        element.classList.add('toggle-on');
+                    } else {
+                        element.classList.remove('toggle-on');
+                        element.classList.add('toggle-off');
                     }
-
-                    // Native TTS interval checks AI translated letter buffer
-                    setInterval(() => {
-                        if(voiceEnabled) {
-                            fetch('/prediction')
-                                .then(r => r.json())
-                                .then(data => {
-                                    if(data.letter && data.letter !== lastSpoken) {
-                                        lastSpoken = data.letter;
-                                        const utterance = new SpeechSynthesisUtterance(data.letter);
-                                        utterance.rate = 1.0;
-                                        window.speechSynthesis.speak(utterance);
-                                    }
-                                }).catch(err => console.error(err));
-                        }
-                    }, 1500);
-
-                    function reportDetection() {
-                        const userMsg = prompt("Where is the false detection, or what gesture went wrong? 📝");
-                        if (userMsg === null || userMsg.trim() === "") return; // Cancelled or empty
-                        
-                        const btn = document.getElementById('reportBtn');
-                        const msg = document.getElementById('reportMsg');
-                        btn.disabled = true;
-                        btn.innerHTML = 'Sending...';
-                        
-                        fetch('/report', { 
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({ message: userMsg })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            btn.innerHTML = 'Reported ✓';
-                            btn.classList.add('success-state');
-                            msg.style.opacity = '1';
-                            msg.style.transform = 'translateY(0)';
-                            
-                            setTimeout(() => {
-                                btn.disabled = false;
-                                btn.innerHTML = '<span class="btn-icon">⚠️</span> Report False Detection';
-                                btn.classList.remove('success-state');
-                                msg.style.opacity = '0';
-                                msg.style.transform = 'translateY(10px)';
-                            }, 3000);
-                        });
-                    }
-                </script>
-            </div>
-        </section>
-
-        <!-- Community Section -->
-        <section class="community-section glass-panel" style="margin-top: 2rem; padding: 1.5rem;">
-            <h3 style="margin-bottom: 1rem; color: #fff;">💬 Community Interaction</h3>
-            <div class="community-chat" id="communityChatBox" style="background: rgba(0,0,0,0.2); border-radius: 12px; height: 160px; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1rem;">
-                <div style="font-size: 0.95rem;"><strong style="color:var(--accent-color)">User123:</strong> The AI works perfectly for 'C' and 'O'! 👍💯</div>
-                <div style="font-size: 0.95rem;"><strong style="color:var(--success-color)">SignLearner:</strong> Can anyone share tips on angle for 'Thank You'? 🤔</div>
-                <div style="font-size: 0.95rem;"><strong style="color:#ff758c">UditBhatt:</strong> Try keeping your palm completely flat to the camera! ✨</div>
-            </div>
-            <div style="display: flex; gap: 0.5rem;">
-                <input id="communityInput" type="text" placeholder="Chat with Gemini AI here... ✍️" style="flex: 1; padding: 12px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(255,255,255,0.05); color: var(--text-primary); outline: none;" onkeypress="if(event.key === 'Enter') sendCommunityMessage()">
-                <button onclick="sendCommunityMessage()" style="padding: 10px 20px; border-radius: 8px; border: none; background: var(--accent-color); color: white; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">Send 🚀</button>
-            </div>
-
-            <script>
-                function sendCommunityMessage() {
-                    const input = document.getElementById('communityInput');
-                    const msg = input.value.trim();
-                    if(!msg) return;
-                    
-                    const chatBox = document.getElementById('communityChatBox');
-                    
-                    // Display User Message
-                    const userDiv = document.createElement('div');
-                    userDiv.style.fontSize = '0.95rem';
-                    userDiv.innerHTML = `<strong style="color:var(--accent-color)">You:</strong> ${msg}`;
-                    chatBox.appendChild(userDiv);
-                    input.value = '';
-                    
-                    // Display Typing Indicator
-                    const botDiv = document.createElement('div');
-                    botDiv.style.fontSize = '0.95rem';
-                    botDiv.innerHTML = `<strong style="color:var(--success-color)">Gemini AI:</strong> <em style="color:#aaa;">thinking...</em>`;
-                    chatBox.appendChild(botDiv);
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                    
-                    // Connect to Backend Gemini API
-                    fetch('/chat', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ message: msg })
-                    })
-                    .then(r => r.json())
-                    .then(data => {
-                        // Markdown cleanup for simple html rendering
-                        const cleanResponse = data.response.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
-                        botDiv.innerHTML = `<strong style="color:var(--success-color)">Gemini AI:</strong> <span style="color:#e6e6e6; line-height: 1.4;">${cleanResponse}</span>`;
-                        chatBox.scrollTop = chatBox.scrollHeight;
-                    })
-                    .catch(err => {
-                        botDiv.innerHTML = `<strong style="color:var(--success-color)">Gemini AI:</strong> <span style="color:#ff4b2b;">Connection Error!</span>`;
-                    });
                 }
-            </script>
-        </section>
-        
-        <footer>
-            <p>Powered by MediaPipe & Scikit-Learn</p>
-        </footer>
-
-        <!-- Floating Chatbot popup -->
-        <div id="chatbotPopup" onclick="alert('Chatbot: Im glad you are here! Enjoy learning sign language! 🌟')" style="position: fixed; bottom: -100px; right: 20px; background: var(--panel-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--panel-border); border-radius: 20px; padding: 15px 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000; cursor: pointer;">
-            <div style="font-size: 2.2rem; animation: pulse 2s infinite;">🤖</div>
-            <div>
-                <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-primary);">AI Assistant</h4>
-                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">Hey! How was your day? 🌤️</p>
-            </div>
-        </div>
-        <script>
-            window.addEventListener('load', () => {
-                setTimeout(() => {
-                    const bot = document.getElementById('chatbotPopup');
-                    if(bot) bot.style.bottom = '20px';
-                }, 4000);
-            });
-        </script>
-    </main>
-
-    <!-- Magical Synthesizer Engine -->
-    <button id="musicToggle" onclick="toggleMusic(event)" style="position:fixed; bottom:20px; left:20px; background:var(--panel-bg); border:1px solid var(--panel-border); color:var(--text-primary); padding:10px 15px; border-radius:12px; cursor:pointer; backdrop-filter:blur(10px); z-index:1000; box-shadow:0 5px 15px rgba(0,0,0,0.5); font-weight:bold; transition:all 0.3s ease;">
-        🔇 Music: OFF
-    </button>
-    <script>
-        let themeAudioCtx;
-        let isThemePlaying = false;
-        let themeInterval;
-
-        function playHedwigsTheme() {
-            if (!themeAudioCtx) themeAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (themeAudioCtx.state === 'suspended') themeAudioCtx.resume();
-
-            const notes = [
-                { f: 493.88, d: 0.5 }, { f: 659.25, d: 0.75 }, { f: 783.99, d: 0.25 },
-                { f: 739.99, d: 0.5 }, { f: 659.25, d: 1.0 }, { f: 987.77, d: 0.5 },
-                { f: 880.00, d: 1.5 }, { f: 739.99, d: 1.5 }, { f: 659.25, d: 0.75 },
-                { f: 783.99, d: 0.25 }, { f: 739.99, d: 0.5 }, { f: 622.25, d: 1.0 },
-                { f: 698.46, d: 0.5 }, { f: 493.88, d: 1.5 }
-            ];
-
-            let time = themeAudioCtx.currentTime;
-            notes.forEach(note => {
-                const osc = themeAudioCtx.createOscillator();
-                const gain = themeAudioCtx.createGain();
-                osc.type = 'triangle'; // Magical electronic bell tone
-                osc.frequency.setValueAtTime(note.f, time);
-                gain.gain.setValueAtTime(0.15, time); // Background volume
-                gain.gain.exponentialRampToValueAtTime(0.01, time + note.d);
-                osc.connect(gain);
-                gain.connect(themeAudioCtx.destination);
-                osc.start(time);
-                osc.stop(time + note.d);
-                time += note.d;
-            });
-            return time - themeAudioCtx.currentTime;
+            } catch (error) {
+                console.error("Error toggling feature:", error);
+            }
         }
 
-        function toggleMusic(e) {
-            if(e) e.stopPropagation();
-            const btn = document.getElementById('musicToggle');
-            if (isThemePlaying) {
-                isThemePlaying = false;
-                clearInterval(themeInterval);
-                if(themeAudioCtx) themeAudioCtx.suspend();
-                btn.innerHTML = '🔇 Music: OFF';
-                btn.style.boxShadow = '0 5px 15px rgba(0,0,0,0.5)';
-            } else {
-                isThemePlaying = true;
-                if(themeAudioCtx && themeAudioCtx.state === 'suspended') themeAudioCtx.resume();
-                const dur = playHedwigsTheme(); 
-                themeInterval = setInterval(playHedwigsTheme, (dur * 1000) + 1000); 
-                btn.innerHTML = '🎵 Music: ON';
-                btn.style.boxShadow = '0 5px 15px rgba(255,123,0,0.3)';
+        async function clearBuffer() {
+            try {
+                await fetch('/api/clear', { method: 'POST' });
+            } catch (error) {
+                console.error("Error clearing buffer:", error);
+            }
+        }
+
+        async function speakManual() {
+            try {
+                await fetch('/api/speak', { method: 'POST' });
+            } catch (error) {
+                console.error("Error speaking:", error);
+            }
+        }
+
+        async function recordSign() {
+            const wordInput = document.getElementById('customWord');
+            const word = wordInput.value.trim();
+            if (!word) {
+                alert("Please enter a word to record!");
+                return;
+            }
+            try {
+                await fetch('/api/record', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ word: word })
+                });
+                wordInput.value = "";
+                // Give user a prompt to hold the sign
+                setTimeout(() => {
+                    alert("Stand still! Recording: " + word);
+                }, 100);
+            } catch (error) {
+                console.error("Error recording sign:", error);
             }
         }
     </script>

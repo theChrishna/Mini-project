@@ -1,181 +1,67 @@
-import cv2
-import pickle
-import numpy as np
-import time
-import os
-import google.generativeai as genai
-from flask import Flask, render_template, Response, request
-from hand_tracking import HandDetector
+from flask import Flask, render_template, Response, jsonify, request
+from camera import VideoCamera
 
-app = Flask(__name__)  # Initialize the Flask application
-current_prediction = ""
+app = Flask(__name__)
 
-# Securely configure Gemini
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'dummy_key')
-genai.configure(api_key=GEMINI_API_KEY)
-try:
-    gemini_model = genai.GenerativeModel('gemini-1.5-flash')
-except Exception:
-    gemini_model = None
+# Global camera object to maintain state across requests
+video_camera = None
 
-# 1. Load the trained model
-with open("model.p", "rb") as f:
-    model = pickle.load(f)
+def get_camera():
+    global video_camera
+    if video_camera is None:
+        video_camera = VideoCamera()
+    return video_camera
 
-detector = HandDetector(maxHands=1)
-
-
-def generate_frames():
-    cap = cv2.VideoCapture(0)
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-
-    # Check if the webcam is opened correctly
-    if not cap.isOpened():
-        print("Error: Could not open video device.")
-        return
-
-    frame_timestamp_ms = 0
-    prev_time = 0
-
-    try:
-        while True:
-            success, img = cap.read()
-            if not success:
-                print("Error: Failed to read frame from camera.")
-                break
-
-            frame_timestamp_ms = time.time_ns() // 1_000_000
-
-            # Mirror the image for natural movement
-            img = cv2.flip(img, 1)
-
-            # Process hands
-            img = detector.findHands(img, frame_timestamp_ms, draw=True)
-            lmList = detector.findPosition(img, draw=False)
-
-            if lmList:
-                h, w, _ = img.shape
-                # Normalize and extract coordinates directly
-                features = np.array(
-                    [lm[1] / w for lm in lmList] + [lm[2] / h for lm in lmList]
-                ).reshape(1, -1)
-
-                # Predict the gesture
-                prediction = model.predict(features)
-                letter = str(prediction[0])
-
-                global current_prediction
-                current_prediction = letter
-
-                # Calculate and Draw bounding box around hand
-                x_coords = [lm[1] for lm in lmList]
-                y_coords = [lm[2] for lm in lmList]
-                xmin, xmax = min(x_coords), max(x_coords)
-                ymin, ymax = min(y_coords), max(y_coords)
-                
-                # Orange Bounding Box padding
-                cv2.rectangle(img, (max(0, xmin - 20), max(0, ymin - 20)), 
-                              (min(w, xmax + 20), min(h, ymax + 20)), (0, 165, 255), 2)
-
-                # Draw the UI on the frame
-                cv2.rectangle(
-                    img, (20, 20), (150, 120), (255, 99, 71), cv2.FILLED
-                )  # Tomato color
-                cv2.putText(
-                    img,
-                    letter,
-                    (45, 100),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    3,
-                    (255, 255, 255),
-                    5,
-                )
-
-            # Calculate FPS
-            curr_time = time.time()
-            fps = 1 / (curr_time - prev_time) if prev_time else 0
-            prev_time = curr_time
-            
-            # Put FPS on screen
-            cv2.putText(img, f"FPS: {int(fps)} 👽", (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
-
-            # Add live time telecast
-            current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-            cv2.putText(
-                img,
-                current_time,
-                (10, img.shape[0] - 20),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.7,
-                (0, 255, 255),
-                2,
-            )
-
-            # Format the image into JPEG for web streaming
-            ret, buffer = cv2.imencode(".jpg", img)
-            if not ret:
-                continue
-
-            frame = buffer.tobytes()
-
-            # Yield the multipart byte stream
-            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
-
-    finally:
-        # Ensure the camera is released even if an error occurs
-        cap.release()
-
-
-@app.route("/")
-def login():
-    return render_template("login.html")
-
-@app.route("/translator")
+@app.route('/')
 def index():
-    return render_template("index.html")
+    """Render the main UI page."""
+    return render_template('index.html')
 
+import time
 
-@app.route("/video_feed")
+def gen(camera):
+    """Video streaming generator function yielding multipart JPEG frames."""
+    while True:
+        frame = camera.get_frame()
+        if frame is None:
+            time.sleep(0.1)
+            continue
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/video_feed')
 def video_feed():
-    return Response(
-        generate_frames(), mimetype="multipart/x-mixed-replace; boundary=frame"
-    )
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    return Response(gen(get_camera()),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/api/toggle', methods=['POST'])
+def toggle_feature():
+    feature = request.json.get('feature')
+    if feature:
+        cam = get_camera()
+        states = cam.toggle_feature(feature)
+        return jsonify({"status": "success", "state": states[feature]})
+    return jsonify({"status": "error", "message": "Invalid feature"}), 400
 
-@app.route('/report', methods=['POST'])
-def report_false_detection():
-    data = request.json or {}
-    message = data.get('message', 'No details provided by user.')
-    
-    # Notify the owner via terminal log
-    print("\n" + "="*60)
-    print("🚨 ALERT: False detection reported by user at front-end! 🚨")
-    print(f"📝 User Feedback: {message}")
-    print("="*60 + "\n")
-    return {"status": "success", "message": "Report sent"}
+@app.route('/api/record', methods=['POST'])
+def record_custom_sign():
+    word = request.json.get('word')
+    if word:
+        get_camera().start_custom_recording(word)
+        return jsonify({"status": "success"})
+    return jsonify({"status": "error", "message": "No word provided"}), 400
 
-@app.route('/prediction')
-def get_prediction():
-    return {"letter": current_prediction}
+@app.route('/api/clear', methods=['POST'])
+def clear_buffer():
+    get_camera().clear_buffer()
+    return jsonify({"status": "success"})
 
-@app.route('/chat', methods=['POST'])
-def chat_with_gemini():
-    if not gemini_model or GEMINI_API_KEY == 'dummy_key':
-        return {"response": "Hi! I am Gemini. 🤖 Please set your GEMINI_API_KEY environment variable in your terminal to enable my live responses!"}
-    
-    data = request.json or {}
-    message = data.get('message', '')
-    if not message:
-        return {"response": "I didn't hear anything! How can I help?"}
-        
-    try:
-        response = gemini_model.generate_content(message)
-        return {"response": response.text}
-    except Exception as e:
-        return {"response": f"Sorry, I encountered an error: {str(e)}"}
+@app.route('/api/speak', methods=['POST'])
+def speak_manual():
+    get_camera().speak_manual()
+    return jsonify({"status": "success"})
 
-if __name__ == "__main__":
-    print("Starting Flask server on port 5000...")
-    app.run(debug=True, port=5000)
-    # End of application
+if __name__ == '__main__':
+    # Threaded ensures multiple requests can be handled (e.g. streaming + API calls)
+    app.run(host='0.0.0.0', port=5000, threaded=True)

@@ -1,5 +1,8 @@
+venv/
 __pycache__/
 *.pyc
-venv/
-venv_new/
 .env
+firebase-credentials.json
+app_error.log
+models/
+fonts/
